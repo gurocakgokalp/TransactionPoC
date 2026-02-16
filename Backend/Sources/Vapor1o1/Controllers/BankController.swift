@@ -36,7 +36,7 @@ struct BankController: RouteCollection {
                 
                 let transaction = try JSONDecoder().decode(transactionRequest.self, from: decryptedData)
                 //normalde burda iste db bagli olacak para atanacak cart curt...
-                print("\(transaction.id) id, \(transaction.amount) lira degerindeki islem onaylandi.")
+                print("\(transaction.id) id, \(transaction.amount) lira degerindeki islem onaylandi. payload:\n\namount: \(transaction.amount) TL\ndesc: \(transaction.desc)\nalici iban: TR\(transaction.iban)\nuuid: \(transaction.id)")
                 
                 
                 return decryptResponse(status: "OK.", message: "decrypted payload:\n \namount: \(transaction.amount) TL\ndesc: \(transaction.desc)\nalici iban: TR\(transaction.iban)\nuuid: \(transaction.id)")
