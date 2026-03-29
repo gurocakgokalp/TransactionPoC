@@ -75,7 +75,7 @@ class NetworkManager {
     }
     
     func sendEncryptedData(req: encryptedRequest) async throws -> decryptResponse {
-        let result: decryptResponse = try await post(endpoint: "receiveEncrypt", body: req)
+        let result: decryptResponse = try await post(endpoint: "transfer", body: req)
         return result
     }
     

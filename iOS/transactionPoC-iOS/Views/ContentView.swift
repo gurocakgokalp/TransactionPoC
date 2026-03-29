@@ -238,7 +238,7 @@ struct ContentView: View {
                 LogManager.shared.log(log: Log(who: "View", logText: "something went wrong when converting amount from String to Double", color: .red))
                 return
             }
-            await authManager.getUserRequestAndEncrypt(transaction: transactionRequest(amount: amountDouble, iban: self.iban, desc: desc))
+            await authManager.getUserRequestAndEncrypt(transaction: transactionRequest(amount: amountDouble, iban: self.iban, desc: desc, replayNonce: UUID().uuidString, timestamp: Int64(Date().timeIntervalSince1970)))
         } else {
             LogManager.shared.log(log: Log(who: "View", logText: "server offline, transaction canceled...", color: .primary))
         }

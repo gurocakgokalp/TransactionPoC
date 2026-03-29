@@ -10,6 +10,8 @@ struct transactionRequest: Identifiable, Codable {
     let amount: Double
     let iban: String
     let desc: String
+    let replayNonce: String
+    let timestamp: Int64
     var id = UUID()
 }
 

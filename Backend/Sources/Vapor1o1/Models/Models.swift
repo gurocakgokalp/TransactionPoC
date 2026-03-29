@@ -15,6 +15,7 @@ struct transactionRequest: Identifiable, Codable {
     let amount: Double
     let iban: String
     let desc: String
-    var id: UUID
+    let replayNonce: String
+    let timestamp: Int64
 }
 

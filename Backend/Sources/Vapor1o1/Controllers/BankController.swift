@@ -16,7 +16,7 @@ struct BankController: RouteCollection {
         bank.get("status", use: status)
         bank.post("handshake", use: handshake)
         bank.post("enroll", use: enroll)
-        bank.post("receiveEncrypt", use: receiveEncryptedRequest)
+        bank.post("transfer", use: receiveEncryptedRequest)
         
         
         KeyManager.shared.createServerPrivateKey()
@@ -31,10 +31,23 @@ struct BankController: RouteCollection {
                 throw CryptoError.b64encoding
             }
             let verifyResult = try CryptoHelper.shared.verify(signatureS: input.signature, originalDataS: sealedBoxS, deviceId: input.deviceID)
+            
             if verifyResult {
                 let decryptedData = try CryptoHelper.shared.decrypt(sealedBox: sealedBox, deviceID: input.deviceID)
                 
                 let transaction = try JSONDecoder().decode(transactionRequest.self, from: decryptedData)
+                
+                let now = Int64(Date().timeIntervalSince1970)
+                guard abs(now - transaction.timestamp) < 300 else {
+                    print("replay attack: stale timestamp")
+                    throw Abort(.badRequest, reason: "Request expired")
+                }
+                
+                guard await NonceStore.shared.checkAndInsert(transaction.replayNonce) else {
+                    print("replay attack: duplicate nonce")
+                    throw Abort(.badRequest, reason: "Duplicate request")
+                }
+                
                 //normalde burda iste db bagli olacak para atanacak cart curt...
                 print("\(transaction.id) id, \(transaction.amount) lira degerindeki islem onaylandi. payload:\n\namount: \(transaction.amount) TL\ndesc: \(transaction.desc)\nalici iban: TR\(transaction.iban)\nuuid: \(transaction.id)")
                 
