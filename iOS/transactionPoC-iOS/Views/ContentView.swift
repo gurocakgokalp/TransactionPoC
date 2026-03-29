@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import LocalAuthentication
 
 struct ContentView: View {
     @Environment(\.dismiss) var dismiss
@@ -140,12 +141,8 @@ struct ContentView: View {
                     
 
                     Button(action: {
-                        Task {
-                            await setupTransaction()
-                        }
-                        withAnimation {
-                            currentDetent = .fraction(0.6)
-                        }
+                        authenticate()
+                       
                     }) {
                         HStack {
                             Text("Send Transaction")
@@ -225,6 +222,39 @@ struct ContentView: View {
                     .presentationDragIndicator(.hidden)
                     .interactiveDismissDisabled()
                     .presentationBackgroundInteraction(.enabled(upThrough: .fraction(0.6)))
+            }
+        }
+    }
+    
+    func authenticate() {
+        let context = LAContext()
+        var error: NSError?
+
+        if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
+            let reason = "Authenticate your identity before sending a transaction."
+
+            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, authenticationError in
+                if success {
+                    Task {
+                        await setupTransaction()
+                        
+                    }
+                    withAnimation {
+                        currentDetent = .fraction(0.6)
+                    }
+                } else {
+                    Task {
+                        await LogManager.shared.log(log: Log(who: "auth", logText: "auth failed.", color: .primary))
+                    }
+                    withAnimation {
+                        currentDetent = .fraction(0.6)
+                    }
+                }
+            }
+        } else {
+            LogManager.shared.log(log: Log(who: "auth", logText: "no biometrics", color: .primary))
+            withAnimation {
+                currentDetent = .fraction(0.6)
             }
         }
     }
