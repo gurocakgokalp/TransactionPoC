@@ -42,7 +42,7 @@ class CryptoManager {
         
         let signature = try sign(digest: digest)
         
-        
+        print("crypto.manager encrypt completed")
         return encryptedRequest(ciphertext: sealedBox.ciphertext.base64EncodedString(), signature: signature.rawRepresentation.base64EncodedString(), nonce: sealedBox.nonce.withUnsafeBytes { Data($0)}.base64EncodedString(), tag: sealedBox.tag.base64EncodedString(), deviceID: deviceId)
     }
     

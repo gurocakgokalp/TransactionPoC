@@ -7,19 +7,21 @@
 import Vapor
 import struct Foundation.UUID
 
+// configure.swift de cagirmak gerekiyor, her yerden cagirilabilir suan risk var. app.lifecycle kullanilmali
 final class KeyManager: @unchecked Sendable {
     static let shared = KeyManager()
+    private let logger = Logger(label: "key.manager")
     
-    var serverPrivateKey: Curve25519.KeyAgreement.PrivateKey?
+    private var serverPrivateKey: Curve25519.KeyAgreement.PrivateKey?
     
     private init() {}
     
     func createServerPrivateKey() {
         if serverPrivateKey != nil {
-            print("already exist")
+            logger.warning("Server private key already exists, skipping creation")
         } else {
             let createdKey = Curve25519.KeyAgreement.PrivateKey()
-            print("key created, writing ram")
+            logger.info("Server private key created")
             serverPrivateKey = createdKey
         }
         
@@ -27,10 +29,10 @@ final class KeyManager: @unchecked Sendable {
     
     func getServerPrivateKey() -> Curve25519.KeyAgreement.PrivateKey? {
         if let serverPrivateKey = serverPrivateKey {
-            print("key found, using due \"getServerPrivateKey()\"")
+            //print("key found, using due \"getServerPrivateKey()\"")
             return serverPrivateKey
         } else {
-            print("no exist key.")
+            logger.critical("Server private key requested but not found")
             return nil
         }
     }
